@@ -1,6 +1,23 @@
 import { Request, Response } from "express";
 import * as courseService from "../services/course.service";
 
+const normalizeParam = (
+  param: string | string[] | undefined
+): string | null => {
+  if (typeof param === "string") {
+    const trimmed = param.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  if (Array.isArray(param) && param.length > 0) {
+    const first = param[0];
+    if (typeof first === "string") {
+      const trimmed = first.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }
+  }
+  return null;
+};
+
 export const createCourse = async (
   req: Request,
   res: Response
@@ -69,7 +86,15 @@ export const getCourseById = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = normalizeParam(req.params.id);
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: "Course ID is required",
+      });
+      return;
+    }
+
     const course = await courseService.getCourseById(id);
 
     res.status(200).json({
@@ -90,7 +115,15 @@ export const updateCourse = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = normalizeParam(req.params.id);
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: "Course ID is required",
+      });
+      return;
+    }
+
     const { title, description, price, thumbnail } = req.body;
 
     const course = await courseService.updateCourse(id, {
@@ -119,7 +152,15 @@ export const deleteCourse = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = normalizeParam(req.params.id);
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: "Course ID is required",
+      });
+      return;
+    }
+
     const course = await courseService.deleteCourse(id);
 
     res.status(200).json({

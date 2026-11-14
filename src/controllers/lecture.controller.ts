@@ -1,12 +1,37 @@
 import { Request, Response } from "express";
 import * as lectureService from "../services/lecture.service";
 
+const normalizeParam = (
+  param: string | string[] | undefined
+): string | null => {
+  if (typeof param === "string") {
+    const trimmed = param.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
+  if (Array.isArray(param) && param.length > 0) {
+    const first = param[0];
+    if (typeof first === "string") {
+      const trimmed = first.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    }
+  }
+  return null;
+};
+
 export const createLecture = async (
   req: Request,
   res: Response
 ): Promise<void> => {
   try {
-    const { courseId } = req.params;
+    const courseId = normalizeParam(req.params.courseId);
+    if (!courseId) {
+      res.status(400).json({
+        success: false,
+        message: "Course ID is required",
+      });
+      return;
+    }
+
     const { title, description, videoUrl } = req.body;
 
     const lecture = await lectureService.createLecture({
@@ -35,7 +60,15 @@ export const getLecturesByCourse = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { courseId } = req.params;
+    const courseId = normalizeParam(req.params.courseId);
+    if (!courseId) {
+      res.status(400).json({
+        success: false,
+        message: "Course ID is required",
+      });
+      return;
+    }
+
     const lectures = await lectureService.getLecturesByCourse(courseId);
 
     res.status(200).json({
@@ -57,7 +90,15 @@ export const getLectureById = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = normalizeParam(req.params.id);
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: "Lecture ID is required",
+      });
+      return;
+    }
+
     const lecture = await lectureService.getLectureById(id);
 
     res.status(200).json({
@@ -78,7 +119,15 @@ export const updateLecture = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = normalizeParam(req.params.id);
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: "Lecture ID is required",
+      });
+      return;
+    }
+
     const { title, description, videoUrl } = req.body;
 
     const lecture = await lectureService.updateLecture(id, {
@@ -106,7 +155,15 @@ export const deleteLecture = async (
   res: Response
 ): Promise<void> => {
   try {
-    const { id } = req.params;
+    const id = normalizeParam(req.params.id);
+    if (!id) {
+      res.status(400).json({
+        success: false,
+        message: "Lecture ID is required",
+      });
+      return;
+    }
+
     const lecture = await lectureService.deleteLecture(id);
 
     res.status(200).json({
