@@ -35,6 +35,5 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/courses", courseRoutes);
 app.use("/api", lectureRoutes);
-app.use("/api/lectures", lectureRoutes);
 
 export default app;
